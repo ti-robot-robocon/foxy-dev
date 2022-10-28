@@ -1,0 +1,110 @@
+FROM ubuntu:20.04
+
+# Arguments
+ARG USER="developer"
+ARG GROUP="developer"
+ARG UID=1000
+ARG GID=1000
+ARG SHELL=/bin/bash
+ARG ROS_DISTRO="foxy"
+
+# Install apps
+ENV DEBCONF_NOWARNINGS=yes
+RUN apt-get update -y \
+    && apt-get install -y --no-install-recommends \
+      sudo curl vi nano wget tar \
+      terminator bash-completion \
+      locales language-pack-ja fonts-noto-cjk \
+      pulseaudio \
+    && apt-get clean
+
+# TimeZone &LanguageSetting
+ENV TZ=Asia/Tokyo
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
+    && echo $TZ > /etc/timezone \
+    && locale-gen en_US.UTF-8 \
+    && echo "export LANG=en_US.UTF-8" >> ~/.bashrc
+
+# Setup users and groups
+RUN groupadd --gid ${GID} ${GROUP} \
+  && useradd --gid ${GID} --uid ${UID} -ms ${SHELL} ${USER} \
+  && mkdir -p /etc/sudoers.d \
+  && echo "${USER}:x:${UID}:${UID}:${USER},,,:$HOME:${shell}" >> /etc/passwd \
+  && echo "${USER}:x:${UID}:" >> /etc/group \
+  && echo "${USER} ALL=(ALL) NOPASSWD: ALL" > "/etc/sudoers.d/${USER}" \
+  && chmod 0440 /etc/sudoers.d/${USER} \
+  && chown ${uid}:${gid} -R /home/${USER} 
+
+# Env vars for the nvidia-container-runtime.
+ENV NVIDIA_VISIBLE_DEVICES all
+ENV NVIDIA_DRIVER_CAPABILITIES all
+
+# Change permissions on USB devices for Lider
+RUN echo 'KERNEL=="tty[A-Z]*[0-9]|pppox[0-9]*|ircomm[0-9]*|noz[0-9]*|rfcomm[0-9]*", GROUP="dialout", MODE="0777"' \
+  >> /lib/udev/rules.d/50-udev-default.rules 
+
+# Add developer user to the dialout group to be ale to write the serial USB device
+RUN sed "s/^dialout.*/&${USER}/" /etc/group -i \
+    && sed "s/^root.*/&${USER}/" /etc/group -i
+
+# Install ROS
+RUN apt-get update -y \
+    && apt-get install -y --no-install-recommends \
+      ca-certificates git gnupg2 lsb-release \
+    && curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key  -o /usr/share/keyrings/ros-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null \
+    && apt-get update -y \
+    && apt-get install -y --no-install-recommends \
+      cmake gcc g++ \
+      ros-${ROS_DISTRO}-desktop ed \
+      python3-pip python3-colcon-common-extensions python3-argcomplete \
+      python3-rosdep python3-vcstool \
+    && apt-get clean \
+    && echo 'export PATH="$PATH:$HOME/.local/bin"' >> /home/${USER}/.bashrc \
+    && pip3 install numpy pandas matplotlib datetime serial pyserial
+
+# Add path for ROS
+RUN echo "source /opt/ros/${ROS_DISTRO}/setup.sh" >> /home/${USER}/.bashrc \
+    && . /home/${USER}/.bashrc \
+    && mkdir -p /home/${USER}/ros2_ws/src / \
+    && cd /home/${USER}/ros2_ws/ \
+    && colcon build
+
+#  Install apps
+RUN apt-get update -y \
+    && apt-get install -y --no-install-recommends \
+      zip unzip \
+      software-properties-common \
+      openjdk-11-jre \
+      xvfb \
+      xz-utils \
+      libfuse2 hostname \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
+
+# Install micro-ros
+WORKDIR /home/${USER}/.pre_installed_pkg/uros_ws
+RUN rosdep init \
+  && git clone --depth 1 -b foxy https://github.com/micro-ROS/micro_ros_setup.git src/micro_ros_setup \
+  && . /opt/ros/$ROS_DISTRO/setup.sh \
+  && rosdep update --rosdistro ${ROS_DISTRO}\
+  && apt update -y \
+  && rosdep install --from-paths src --ignore-src -y \
+  && colcon build \
+  && rm -rf log/ build/ src/* \
+  && rm -rf /var/lib/apt/lists/* \
+  && echo ". /opt/ros/${ROS_DISTRO}/setup.bash" >> /home/${USER}/.bashrc \
+  && echo ". /home/${USER}/.pre_installed_pkg/uros_ws/install/setup.bash" >> /home/${USER}/.bashrc \
+  && . /opt/ros/${ROS_DISTRO}/setup.sh \
+  && . install/local_setup.sh \
+  && ros2 run micro_ros_setup create_agent_ws.sh \
+  && ros2 run micro_ros_setup build_agent.sh \
+  && rm -rf log/ build/ src/
+
+
+WORKDIR /home/${USER}/ros2_ws
+
+CMD ["tail", "-f", "/dev/null"]

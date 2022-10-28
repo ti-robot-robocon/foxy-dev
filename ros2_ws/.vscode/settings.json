@@ -1,0 +1,52 @@
+{
+    // Autocomplete from ros python packages
+    "python.autoComplete.extraPaths": [
+        "/opt/ros/foxy/lib/python3.8/site-packages/"
+    ],
+    "python.analysis.extraPaths": [
+        "/opt/ros/foxy/lib/python3.8/site-packages/"
+    ],
+    "workbench.colorCustomizations": {
+        "statusBar.background": "#e45e32",
+        "statusBar.foreground": "#000a02",
+        "activityBar.foreground": "#e45e32",
+        "tab.activeBorderTop": "#e45e32",
+        "statusBarItem.remoteForeground": "#000a02",
+        "statusBarItem.remoteBackground": "#ea930a"
+    },
+    "todohighlight.keywords": [
+        {
+            "text": "TODO:",
+            "color": "#fafafa",
+            "backgroundColor": "#c2571a"
+        },
+        {
+            "text": "FIXME:",
+            "color": "#eaeaea",
+            "backgroundColor": "#9b003f"
+        },
+        {
+            "text": "NOTE:",
+            "color": "#e0e0e0",
+            "backgroundColor": "#0086ad"
+        },
+        {
+            "text": "XXX:",
+            "color": "#0a0a00",
+            "backgroundColor": "#ffb900"
+        },
+        {
+            "text": "HACK:",
+            "color": "#000000",
+            "backgroundColor": "#B5C689"
+        },
+    ],
+    "ros.distro": "foxy",
+    "dev.containers.defaultExtensions": [
+        "eamodio.gitlens",
+        "mutantdino.resourcemonitor"
+    ],
+    "editor.tabSize": 2,
+    // formatter for C++
+    "C_Cpp.clang_format_style": "Google"
+}
