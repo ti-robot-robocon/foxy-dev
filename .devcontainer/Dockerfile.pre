@@ -8,11 +8,14 @@ ARG GID=1000
 ARG SHELL=/bin/bash
 ARG ROS_DISTRO="foxy"
 
+# Set to use mirror site 
+RUN sed -i.bak -r 's!(deb|deb-src) \S+!\1 mirror+http://mirrors.ubuntu.com/mirrors.txt!' /etc/apt/sources.list
+
 # Install apps
 ENV DEBCONF_NOWARNINGS=yes
 RUN apt-get update -y \
     && apt-get install -y --no-install-recommends \
-      sudo curl vi nano wget tar \
+      sudo curl vim nano wget tar \
       terminator bash-completion \
       locales language-pack-ja fonts-noto-cjk \
       pulseaudio \
@@ -55,8 +58,8 @@ RUN apt-get update -y \
     && apt-get install -y --no-install-recommends \
       ca-certificates git gnupg2 lsb-release \
     && curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key  -o /usr/share/keyrings/ros-archive-keyring.gpg \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null \
-    && apt-get update -y \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+RUN  apt-get update -y \
     && apt-get install -y --no-install-recommends \
       cmake gcc g++ \
       ros-${ROS_DISTRO}-desktop ed \
