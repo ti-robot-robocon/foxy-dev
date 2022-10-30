@@ -9,7 +9,7 @@ ARG SHELL=/bin/bash
 ARG ROS_DISTRO="foxy"
 
 # Set to use mirror site 
-RUN sed -i.bak -r 's!(deb|deb-src) \S+!\1 mirror+http://mirrors.ubuntu.com/mirrors.txt!' /etc/apt/sources.list
+# RUN sed -i.bak -r 's!(deb|deb-src) \S+!\1 mirror+http://mirrors.ubuntu.com/mirrors.txt!' /etc/apt/sources.list
 
 # Install apps
 ENV DEBCONF_NOWARNINGS=yes
