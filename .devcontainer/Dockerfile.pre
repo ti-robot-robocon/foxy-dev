@@ -108,6 +108,14 @@ RUN rosdep init \
   && rm -rf log/ build/ src/
 
 
+# Install ROS additional utility
+RUN apt-get update -y \
+    && apt-get install -y --no-install-recommends \
+      ros-foxy-gazebo-ros-pkgs \
+      joystick \
+      ros-foxy-joy-linux ros-foxy-joy-linux-dbgsym
+
+
 WORKDIR /home/${USER}/ros2_ws
 RUN chmod 776 -R ../.
 
