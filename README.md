@@ -16,6 +16,7 @@ bash build.sh
 ```console
 bash run4linux.sh
 ```
+(Nvidia製のGPUのないPCで利用する場合、--gpus の行を削除する)
 
 ### コンテナの起動(Windows)
 
