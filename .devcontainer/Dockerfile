@@ -29,6 +29,9 @@ WORKDIR /home/${USER}/ros2_ws/src/tirobot
 # custom prompt for display git-branch
 RUN echo "export PS1='\[\033[01;36m\]\u@\h\[\033[01;34m\] \w \[\033[01;31m\]$(__git_ps1 "(%s)") \n\[\033[01;30m\]\$\[\033[00m\] '" >> /home/${USER}/.bashrc
 
+# enable auto completion in docker container.
+RUN rm /etc/apt/apt.conf.d/docker-clean
+
 # Switch user to ${USER}
 USER ${USER}
 WORKDIR /home/${USER}/ros2_ws
