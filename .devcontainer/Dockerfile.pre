@@ -111,9 +111,10 @@ RUN rosdep init \
 # Install ROS additional utility
 RUN apt-get update -y \
     && apt-get install -y --no-install-recommends \
-      ros-foxy-gazebo-ros-pkgs \
+      ros-${ROS_DISTRO}-gazebo-ros-pkgs \
+      ros-${ROS_DISTRO}-joint-state-publisher* ros-${ROS_DISTRO}-xacro\
       joystick \
-      ros-foxy-joy-linux ros-foxy-joy-linux-dbgsym
+      ros-${ROS_DISTRO}-joy-linux ros-${ROS_DISTRO}-joy-linux-dbgsym
 
 
 WORKDIR /home/${USER}/ros2_ws
