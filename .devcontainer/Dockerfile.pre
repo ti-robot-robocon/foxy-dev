@@ -74,7 +74,8 @@ RUN echo "source /opt/ros/${ROS_DISTRO}/setup.sh" >> /home/${USER}/.bashrc \
     && . /home/${USER}/.bashrc \
     && mkdir -p /home/${USER}/ros2_ws/src / \
     && cd /home/${USER}/ros2_ws/ \
-    && colcon build
+    && colcon build \
+    && echo "source /home/${USER}/ros2_ws/setup.bash" >> /home/${USER}/.bashrc 
 
 #  Install apps
 RUN apt-get update -y \
@@ -99,8 +100,8 @@ RUN rosdep init \
   && colcon build \
   && rm -rf log/ build/ src/* \
   && rm -rf /var/lib/apt/lists/* \
-  && echo ". /opt/ros/${ROS_DISTRO}/setup.bash" >> /home/${USER}/.bashrc \
-  && echo ". /home/${USER}/.pre_installed_pkg/uros_ws/install/setup.bash" >> /home/${USER}/.bashrc \
+  && echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> /home/${USER}/.bashrc \
+  && echo "source /home/${USER}/.pre_installed_pkg/uros_ws/install/setup.bash" >> /home/${USER}/.bashrc \
   && . /opt/ros/${ROS_DISTRO}/setup.sh \
   && . install/local_setup.sh \
   && ros2 run micro_ros_setup create_agent_ws.sh \
